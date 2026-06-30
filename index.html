@@ -313,13 +313,6 @@
     <div class="meter-label" id="meterLabel">0%</div>
   </section>
 
-  <!-- COUNTDOWN -->
-  <section id="countdownSection">
-    <h2 class="section-heading">Days Until We Meet Again ❤️</h2>
-    <div class="countdown-grid" id="countdownGrid"></div>
-    <p class="section-sub" style="margin-top:18px;">(edit target date in the code anytime)</p>
-  </section>
-
   <!-- OPEN WHEN LETTERS -->
   <section id="envSection">
     <h2 class="section-heading">Open When... 💌</h2>
@@ -569,27 +562,6 @@ const meterObserver = new IntersectionObserver((entries)=>{
   });
 });
 meterObserver.observe(meterSection);
-
-/* ================= COUNTDOWN ================= */
-// EDIT THIS DATE to your reunion date
-const targetDate = new Date('2026-12-25T00:00:00');
-const countdownGrid = document.getElementById('countdownGrid');
-function renderCountdown(){
-  const now=new Date();
-  let diff = Math.max(0, targetDate - now);
-  const d = Math.floor(diff/(1000*60*60*24));
-  const h = Math.floor(diff/(1000*60*60)%24);
-  const m = Math.floor(diff/(1000*60)%60);
-  const s = Math.floor(diff/1000%60);
-  countdownGrid.innerHTML = `
-    <div class="cd-box glass"><div class="cd-num">${d}</div><div class="cd-label">Days</div></div>
-    <div class="cd-box glass"><div class="cd-num">${h}</div><div class="cd-label">Hours</div></div>
-    <div class="cd-box glass"><div class="cd-num">${m}</div><div class="cd-label">Mins</div></div>
-    <div class="cd-box glass"><div class="cd-num">${s}</div><div class="cd-label">Secs</div></div>
-  `;
-}
-renderCountdown();
-setInterval(renderCountdown, 1000);
 
 /* ================= OPEN WHEN LETTERS ================= */
 // const letters = [
