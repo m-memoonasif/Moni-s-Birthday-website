@@ -59,6 +59,10 @@
     background: rgba(255,255,255,0.6); backdrop-filter: blur(8px);
     box-shadow: 0 4px 14px rgba(232,131,156,0.3);
   }
+  .music-frame{
+    position:fixed; left:-9999px; top:-9999px; width:1px; height:1px;
+    border:0; pointer-events:none; opacity:0;
+  }
 
   /* ---------- Screen 1: Lock ---------- */
   #lockScreen{ z-index:5; }
@@ -240,6 +244,7 @@
 
 <div class="heart-field" id="heartField"></div>
 <button id="musicToggle" title="Toggle music">🔇</button>
+<iframe id="musicFrame" class="music-frame" allow="autoplay; encrypted-media" title="Background music"></iframe>
 
 <div id="app">
 
@@ -399,12 +404,20 @@ function spawnHeart(){
 setInterval(spawnHeart, 600);
 for(let i=0;i<8;i++) setTimeout(spawnHeart, i*300);
 
-/* ================= MUSIC TOGGLE (placeholder) ================= */
+/* ================= MUSIC TOGGLE ================= */
 let musicOn=false;
-document.getElementById('musicToggle').addEventListener('click', function(){
+const musicToggle = document.getElementById('musicToggle');
+const musicFrame = document.getElementById('musicFrame');
+const perfectSongUrl = 'https://www.youtube.com/embed/2Vv-BfVoq4g?autoplay=1&controls=0&loop=1&playlist=2Vv-BfVoq4g&enablejsapi=1';
+
+musicToggle.addEventListener('click', function(){
   musicOn=!musicOn;
   this.textContent = musicOn ? '🔊' : '🔇';
-  // Placeholder: attach an <audio> tag with src to your song and call play()/pause() here.
+  if (musicOn) {
+    musicFrame.src = perfectSongUrl;
+  } else {
+    musicFrame.src = 'about:blank';
+  }
 });
 
 /* ================= LOCK SCREEN ================= */
@@ -751,6 +764,19 @@ letters.forEach(([icon,title,body])=>{
     envGrid.appendChild(e);
 
 });
+
+/* ================= GIFT BOX ================= */
+const giftBox = document.getElementById('giftBox');
+const giftReveal = document.getElementById('giftReveal');
+if (giftBox && giftReveal) {
+  giftBox.addEventListener('click', function () {
+    this.textContent = '🎉';
+    giftReveal.classList.add('show');
+    burstConfetti(40);
+    spawnBalloons(6);
+  });
+}
+
 // heeyyyyyyyyy
 /* ================= CAKE ================= */
 const candles = document.querySelectorAll('.candle');
