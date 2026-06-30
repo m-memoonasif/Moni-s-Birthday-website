@@ -148,26 +148,49 @@
   .cd-num{ font-size:30px; color:var(--pink-deep); }
   .cd-label{ font-size:11px; opacity:.6; text-transform:uppercase; letter-spacing:1px;}
 
-  /* ---------- Timeline ---------- */
-  .timeline{ position:relative; max-width: 480px; width:100%; }
-  .timeline::before{ content:''; position:absolute; left:20px; top:0; bottom:0; width:2px; background: var(--pink); }
-  .tl-item{ position:relative; padding: 10px 0 10px 56px; text-align:left; }
-  .tl-dot{ position:absolute; left:11px; top:14px; width:20px; height:20px; border-radius:50%; background: var(--pink-deep); display:flex; align-items:center; justify-content:center; font-size:11px; }
-  .tl-item h4{ color:var(--pink-deep); font-size:16px; margin-bottom:2px;}
-  .tl-item p{ font-size:13px; opacity:.7; }
-
   /* ---------- Envelopes ---------- */
   .env-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:18px; max-width:900px; width:100%; }
-  .envelope{ padding: 24px 14px; cursor:pointer; font-size:14px; transition: transform .25s ease; }
-  .envelope:hover{ transform: translateY(-6px); }
+  .envelope{
+    position:relative; overflow:hidden; cursor:pointer; min-height:140px;
+    padding: 24px 16px 18px; border-radius: 18px 18px 22px 22px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; font-size:14px; line-height:1.5;
+    background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,240,245,0.95));
+    border: 1px solid rgba(232,131,156,0.28);
+    box-shadow: 0 10px 22px rgba(232,131,156,0.16);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .envelope::before{
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(247,206,221,0.7), rgba(255,255,255,0.2));
+    border-radius: inherit; clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    z-index:0;
+  }
+  .envelope::after{
+    content:''; position:absolute; top:0; left:0; right:0; height:54px;
+    background: linear-gradient(135deg, rgba(248,195,215,0.9), rgba(255,255,255,0.9));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    z-index:1;
+  }
+  .envelope:hover{ transform: translateY(-6px) scale(1.02); box-shadow: 0 14px 26px rgba(232,131,156,0.24); }
+  .envelope .icon, .envelope .title, .envelope .letter-body{ position:relative; z-index:2; }
   .envelope .icon{ font-size:28px; margin-bottom:6px; }
+  .envelope .title{ color:var(--pink-deep); font-weight:600; }
+  .envelope .letter-body{
+    max-height:0; overflow:hidden; opacity:0; transition: all .4s ease; margin-top:0;
+    font-size:13px; color:var(--text);
+  }
+  .envelope.opened{ transform: translateY(-4px); }
+  .envelope.opened::after{ transform: rotateX(180deg); transform-origin:center top; }
+  .envelope.opened .letter-body{
+    max-height:220px; opacity:1; margin-top:10px;
+  }
   .env-modal{ position:fixed; inset:0; background:rgba(107,63,77,0.5); display:flex; align-items:center; justify-content:center; z-index:90; padding:20px; opacity:0; visibility:hidden; pointer-events:none; transition: opacity .25s ease, visibility .25s ease; }
   .env-modal.show{ opacity:1; visibility:visible; pointer-events:auto; }
   .env-modal-card{ max-width:420px; padding: 36px 30px; position:relative; transform: translateY(16px); transition: transform .25s ease; }
   .env-modal.show .env-modal-card{ transform: translateY(0); }
-  .env-modal-card p{ font-size:16px; line-height:1.7; }
+  .env-modal-card p{ font-size:16px; line-height:1.7; white-space:pre-line; }
   .env-close{ position:absolute; top:12px; right:16px; cursor:pointer; font-size:18px; color:var(--pink-deep); }
-
   /* ---------- Gift box ---------- */
   .gift-box{ font-size:90px; cursor:pointer; transition: transform .3s ease; }
   .gift-box:hover{ transform: scale(1.1) rotate(-4deg); }
@@ -272,7 +295,7 @@
   <!-- MEMORIES -->
   <section id="memSection">
     <h2 class="section-heading">Our Memories 📸</h2>
-    <p class="section-sub">(add our pictures here later)</p>
+   
     <div class="gallery-wrap" id="galleryWrap"></div>
   </section>
 
@@ -295,12 +318,6 @@
     <h2 class="section-heading">Days Until We Meet Again ❤️</h2>
     <div class="countdown-grid" id="countdownGrid"></div>
     <p class="section-sub" style="margin-top:18px;">(edit target date in the code anytime)</p>
-  </section>
-
-  <!-- TIMELINE -->
-  <section id="timelineSection">
-    <h2 class="section-heading">Memory Timeline</h2>
-    <div class="timeline" id="timelineWrap"></div>
   </section>
 
   <!-- OPEN WHEN LETTERS -->
@@ -507,8 +524,7 @@ galleryImages.forEach(([src, cap])=>{
   const p=document.createElement('div'); p.className='polaroid';
   const img=document.createElement('img');
   img.src=src; img.loading='lazy'; img.alt=cap;
-  const c=document.createElement('div'); c.className='cap'; c.textContent=cap;
-  p.appendChild(img); p.appendChild(c);
+  p.appendChild(img);
   galleryWrap.appendChild(p);
 });
 
@@ -574,21 +590,6 @@ function renderCountdown(){
 }
 renderCountdown();
 setInterval(renderCountdown, 1000);
-
-/* ================= TIMELINE ================= */
-const timelineData = [
-  ['🌸','First Hello','The moment it all began.'],
-  ['💕','First Call','Hours felt like minutes.'],
-  ['🎂','First Birthday Together','A day to remember.'],
-  ['📸','Favorite Memory',"One I'll cherish forever."],
-  ['🌎','Future Adventures','Everything still ahead of us.']
-];
-const timelineWrap = document.getElementById('timelineWrap');
-timelineData.forEach(([icon,title,desc])=>{
-  const item=document.createElement('div'); item.className='tl-item';
-  item.innerHTML = `<div class="tl-dot">${icon}</div><h4>${title}</h4><p>${desc}</p>`;
-  timelineWrap.appendChild(item);
-});
 
 /* ================= OPEN WHEN LETTERS ================= */
 // const letters = [
@@ -674,67 +675,108 @@ timelineData.forEach(([icon,title,desc])=>{
 //   burstConfetti(40);
 //   spawnBalloons(6);
 // });
-document.addEventListener("DOMContentLoaded", () => {
+// document.addEventListener("DOMContentLoaded", () => {
 
+// const letters = [
+//   ["😢","Open when you're sad","My Moni, my Mithu Bachy ❤️\n\nPlease don't cry. I wish I could hold your hand and make everything okay. Remember, no matter how difficult today feels, you are never alone. I love you so much. 🫂💖"],
+//   ["🥺","Open when you miss me","Aww my Mithu Bachy 🥺❤️\n\nIf you're missing me right now, just know I'm missing you too. Imagine me giving you the biggest hug and a forehead kiss. 💕"],
+//   ["😮‍💨","Open when you're stressed","Hey Moni 💛\n\nTake a deep breath. Everything will be okay. I'm always proud of you. 🌸"],
+//   ["🌙","Open when you can't sleep","Good night my Moni 🌙✨\n\nClose your eyes and imagine I'm beside you. Sleep peacefully, my Mithu Bachy. 🤍"],
+//   ["😄","Open when you're happy","Seeing you smile makes my heart happy too! 🥰💖"],
+//   ["🔥","Open when you need motivation","My Moni ❤️\n\nYou are stronger than you think. Keep going. I believe in you forever. 💪🌟"],
+//   ["🤗","Open when you need a hug","Come here, my Mithu Bachy! 🤗💖\n\nSending you the biggest warm hug ever. ❤️🫂"]
+// ];
+
+// const envGrid = document.getElementById("envGrid");
+// const envModal = document.getElementById("envModal");
+// const envModalTitle = document.getElementById("envModalTitle");
+// const envModalBody = document.getElementById("envModalBody");
+// const envClose = document.getElementById("envClose");
+
+// if (!envGrid || !envModal || !envModalTitle || !envModalBody || !envClose) {
+//     console.error("Missing HTML elements.");
+//     return;
+// }
+
+// letters.forEach(([icon,title,body]) => {
+
+//     const card = document.createElement("div");
+//     card.className = "envelope glass";
+
+//     card.innerHTML = `
+//         <div class="icon">💌</div>
+//         <div>${title}</div>
+//     `;
+
+//     card.onclick = () => {
+//         envModalTitle.innerHTML = `${icon} ${title}`;
+//         envModalBody.innerText = body;
+//         envModal.classList.add("show");
+//         document.body.style.overflow = "hidden";
+//     };
+
+//     envGrid.appendChild(card);
+// });
+
+// envClose.onclick = () => {
+//     envModal.classList.remove("show");
+//     document.body.style.overflow = "";
+// };
+
+// envModal.onclick = (e) => {
+//     if (e.target === envModal) {
+//         envModal.classList.remove("show");
+//         document.body.style.overflow = "";
+//     }
+// };
+
+// document.addEventListener("keydown", (e) => {
+//     if (e.key === "Escape") {
+//         envModal.classList.remove("show");
+//         document.body.style.overflow = "";
+//     }
+// });
+
+// });
 const letters = [
   ["😢","Open when you're sad","My Moni, my Mithu Bachy ❤️\n\nPlease don't cry. I wish I could hold your hand and make everything okay. Remember, no matter how difficult today feels, you are never alone. I love you so much. 🫂💖"],
   ["🥺","Open when you miss me","Aww my Mithu Bachy 🥺❤️\n\nIf you're missing me right now, just know I'm missing you too. Imagine me giving you the biggest hug and a forehead kiss. 💕"],
-  ["😮‍💨","Open when you're stressed","Hey Moni 💛\n\nTake a deep breath. Everything will be okay. I'm always proud of you. 🌸"],
+  ["😮‍💨","Open when you're stressed","Hey Moni 💛\n\nTake a deep breath. Everything will be okay. I'm always proud of you mera mithaaa rasgula. 🌸"],
   ["🌙","Open when you can't sleep","Good night my Moni 🌙✨\n\nClose your eyes and imagine I'm beside you. Sleep peacefully, my Mithu Bachy. 🤍"],
   ["😄","Open when you're happy","Seeing you smile makes my heart happy too! 🥰💖"],
-  ["🔥","Open when you need motivation","My Moni ❤️\n\nYou are stronger than you think. Keep going. I believe in you forever. 💪🌟"],
+  ["🔥","Open when you need motivation","My Moni ❤️\n\nYou are stronger than you think. Keep going. I believe in you forever meri an 💪🌟"],
   ["🤗","Open when you need a hug","Come here, my Mithu Bachy! 🤗💖\n\nSending you the biggest warm hug ever. ❤️🫂"]
 ];
 
 const envGrid = document.getElementById("envGrid");
-const envModal = document.getElementById("envModal");
-const envModalTitle = document.getElementById("envModalTitle");
-const envModalBody = document.getElementById("envModalBody");
-const envClose = document.getElementById("envClose");
 
-if (!envGrid || !envModal || !envModalTitle || !envModalBody || !envClose) {
-    console.error("Missing HTML elements.");
-    return;
-}
+letters.forEach(([icon,title,body])=>{
 
-letters.forEach(([icon,title,body]) => {
+    const e=document.createElement("div");
+    e.className="envelope glass";
 
-    const card = document.createElement("div");
-    card.className = "envelope glass";
-
-    card.innerHTML = `
+    e.innerHTML=`
         <div class="icon">💌</div>
-        <div>${title}</div>
+        <div class="title">${title}</div>
+        <div class="letter-body">${body}</div>
     `;
 
-    card.onclick = () => {
-        envModalTitle.innerHTML = `${icon} ${title}`;
-        envModalBody.innerText = body;
-        envModal.classList.add("show");
-        document.body.style.overflow = "hidden";
-    };
+    e.addEventListener("click",function(){
 
-    envGrid.appendChild(card);
-});
+        document.querySelectorAll(".envelope").forEach(card=>{
+            if(card!==this){
+                card.classList.remove("opened");
+                card.querySelector(".icon").textContent="💌";
+            }
+        });
 
-envClose.onclick = () => {
-    envModal.classList.remove("show");
-    document.body.style.overflow = "";
-};
+        this.classList.toggle("opened");
+        this.querySelector(".icon").textContent =
+            this.classList.contains("opened") ? "💖" : "💌";
 
-envModal.onclick = (e) => {
-    if (e.target === envModal) {
-        envModal.classList.remove("show");
-        document.body.style.overflow = "";
-    }
-};
+    });
 
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-        envModal.classList.remove("show");
-        document.body.style.overflow = "";
-    }
-});
+    envGrid.appendChild(e);
 
 });
 /* ================= CAKE ================= */
